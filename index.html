@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>World History Portal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:wght@400;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { 'brand-purple': '#6D4C41', 'brand-cyan': '#A1887F', 'card-bg': '#F5F0E6', 'main-text': '#3E2723' } } }
+        }
+    </script>
+
+    <style>
+        /* --- CSS MANUAL (ENHANCED) --- */
+        :root {
+            --color-primary: #5D4037; 
+            --color-accent: #8D6E63;  
+            --color-bg: #EBE3D5;      
+            --color-card: rgba(245, 240, 230, 0.95); 
+            --color-text: #3E2723;
+            --color-red: #D21F3C;
+            --shadow-soft: 0 10px 30px rgba(62, 39, 35, 0.15);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Merriweather', serif;
+            color: var(--color-text);
+            background-color: var(--color-bg);
+            background-image: 
+                linear-gradient(rgba(235, 227, 213, 0.85), rgba(235, 227, 213, 0.85)), 
+                url('https://images.unsplash.com/photo-1596402184320-417e7178b2cd?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .site-header {
+            background-color: rgba(235, 227, 213, 0.95);
+            border-bottom: 1px solid rgba(93, 64, 55, 0.2);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+        }
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 36px; height: 36px; color: var(--color-primary); }
+        .site-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin: 0;
+        }
+        
+        /* Library Button */
+        .library-btn {
+            font-family: 'Cinzel', serif;
+            background: transparent;
+            border: 2px solid var(--color-primary);
+            color: var(--color-primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        .library-btn:hover { background: var(--color-primary); color: #fff; }
+
+        .main-container { flex: 1; width: 100%; max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--color-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-soft);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.5);
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+            position: relative;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+            font-weight: 800;
+        }
+        .subtitle { color: #5d4037; font-size: 1.1rem; margin-bottom: 2rem; }
+        
+        /* Form Elements */
+        .styled-select, .styled-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid rgba(141, 110, 99, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.8);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .styled-select:focus, .styled-input:focus { 
+            border-color: var(--color-primary); background: #fff;
+            box-shadow: 0 0 0 3px rgba(93, 64, 55, 0.1);
+        }
+
+        .search-box { position: relative; margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .search-icon {
+            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            color: var(--color-accent); width: 24px; height: 24px;
+        }
+        .styled-input-search { padding-left: 55px; padding-right: 120px; font-size: 1.1rem; }
+        
+        .search-btn {
+            position: absolute; right: 8px; top: 8px; bottom: 8px;
+            background-color: var(--color-primary); color: white;
+            border: none; border-radius: 8px; padding: 0 20px;
+            font-weight: bold; cursor: pointer; font-family: 'Cinzel', serif;
+            transition: all 0.3s;
+        }
+        .search-btn:hover { background-color: #3E2723; transform: translateY(-2px); }
+
+        /* Chips */
+        .chips-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 1.5rem; }
+        .chip {
+            background: rgba(255, 255, 255, 0.6); 
+            border: 1px solid rgba(141, 110, 99, 0.3); 
+            padding: 8px 16px;
+            border-radius: 20px; font-size: 0.9rem; color: var(--color-primary);
+            cursor: pointer; transition: all 0.3s; font-weight: 500;
+        }
+        .chip:hover { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+        /* --- NEW ENHANCED LOADING ANIMATION --- */
+        .loader-container { display: none; flex-direction: column; align-items: center; padding: 3rem 0; }
+        
+        .portal-ring {
+            position: relative;
+            width: 80px; height: 80px;
+            margin-bottom: 1.5rem;
+        }
+        .ring-inner, .ring-outer {
+            position: absolute;
+            border-radius: 50%;
+            border: 4px solid transparent;
+        }
+        .ring-outer {
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-top-color: var(--color-primary);
+            border-bottom-color: var(--color-accent);
+            animation: spinReverse 2s linear infinite;
+        }
+        .ring-inner {
+            top: 15px; left: 15px; width: 50px; height: 50px;
+            border-left-color: var(--color-primary);
+            border-right-color: var(--color-accent);
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinReverse { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+
+        .cancel-btn {
+            margin-top: 15px;
+            background: transparent;
+            border: 1px solid var(--color-red);
+            color: var(--color-red);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cancel-btn:hover { background: var(--color-red); color: white; }
+
+        /* Content Typography */
+        .article-content { text-align: left; line-height: 1.8; color: #2D2420; }
+        .article-content h1 { 
+            font-family: 'Cinzel', serif; font-size: 2.2rem; color: #2D2420; 
+            border-bottom: 2px solid var(--color-accent); padding-bottom: 10px; margin-bottom: 1.5rem;
+            text-align: center; 
+        }
+        .article-content h2 { 
+            font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--color-primary); 
+            margin-top: 2.5rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding-bottom: 5px; clear: both;
+        }
+        .article-content p { margin-bottom: 1.2rem; font-size: 1.05rem; text-align: justify; }
+        .article-content strong { color: var(--color-red); font-weight: 700; }
+        .article-content ul { padding-left: 20px; border-left: 3px solid rgba(141, 110, 99, 0.3); margin: 1.5rem 0 1.5rem 10px; list-style: none; clear: both; }
+        .article-content ul li { margin-bottom: 0.8rem; position: relative; padding-left: 10px; }
+        .article-content blockquote { 
+            border-left: 5px solid var(--color-primary); margin: 2rem 0; 
+            padding: 1rem 1.5rem; background: rgba(141, 110, 99, 0.1); 
+            font-style: italic; border-radius: 0 8px 8px 0; clear: both;
+        }
+
+        /* Action Bar (New) */
+        .action-bar {
+            display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 1rem;
+        }
+        .action-btn {
+            background: #fff; border: 1px solid #ccc; color: var(--color-primary);
+            width: 40px; height: 40px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
+            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .action-btn:hover { background: var(--color-primary); color: #fff; transform: translateY(-2px); }
+        .action-btn.active { background: var(--color-red); color: #fff; animation: pulse 1s infinite; border-color: var(--color-red); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* Recommendations */
+        .recommendations-area {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            text-align: center;
+        }
+        .rec-title { font-family: 'Cinzel', serif; color: var(--color-primary); margin-bottom: 1rem; font-size: 1.1rem; }
+
+        /* Table & Images */
+        .article-content table {
+            width: 100%; border-collapse: collapse; margin: 2rem 0;
+            font-size: 0.95rem; background-color: #fff;
+            display: block; overflow-x: auto; white-space: normal; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .article-content th, .article-content td { border: 1px solid #8D6E63; padding: 12px 15px; text-align: left; min-width: 140px; }
+        .article-content th { background-color: #D7CCC8; color: #3E2723; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
+        .article-content tr:nth-child(even) { background-color: #FBF8F5; }
+        .article-content table img, .article-content table .figure-inline { display: none !important; }
+
+        .figure-hero {
+            background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px; margin-bottom: 2rem; width: 100%;
+            max-height: 300px; overflow: hidden;
+        }
+        .figure-hero img { width: 100%; height: 100%; display: block; object-fit: cover; }
+        
+        .figure-inline {
+            background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px; max-width: 180px; float: right; 
+            margin-left: 1.5rem; margin-bottom: 1rem; margin-top: 5px;
+            clear: right; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .figure-inline img { width: 100%; height: auto; border-radius: 4px; aspect-ratio: 3/4; object-fit: cover; }
+        
+        figcaption {
+            font-size: 0.75rem; color: #666; padding: 8px 4px; text-align: center;
+            background: #f9f9f9; border-top: 1px solid #eee;
+        }
+        figcaption a { color: var(--color-primary); text-decoration: none; font-weight: bold; display: inline-block; margin-top: 2px; }
+
+        /* Library Modal */
+        #libraryModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 200;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background: #fff; width: 90%; max-width: 600px; max-height: 80vh;
+            border-radius: 16px; padding: 2rem; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .saved-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border-bottom: 1px solid #eee;
+        }
+        .saved-item:last-child { border-bottom: none; }
+        .saved-title { font-weight: bold; color: var(--color-primary); cursor: pointer; }
+        .saved-title:hover { text-decoration: underline; }
+
+        /* Print Media Query */
+        @media print {
+            header, .search-box, .chips-container, #scrollTopBtn, footer, .action-bar, .recommendations-area, .search-btn-group, #searchCard { display: none !important; }
+            body { background: white; color: black; display: block; }
+            .main-container { max-width: 100%; padding: 0; margin: 0; }
+            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            .article-content { font-size: 12pt; }
+            .hidden { display: block !important; }
+            #resultContainer { display: block !important; }
+        }
+
+        #scrollTopBtn {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: var(--color-primary); color: white; border: none; border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 99;
+            display: none; align-items: center; justify-content: center;
+            transition: all 0.3s;
+        }
+        #scrollTopBtn:hover { transform: translateY(-5px); background: #4E342E; }
+
+        footer { 
+            text-align: center; padding: 2rem; color: #795548; font-size: 0.9rem; 
+            background: rgba(235, 227, 213, 0.9); margin-top: auto; 
+        }
+
+        .hidden { display: none !important; }
+        
+        @media (max-width: 600px) {
+            .hero-title { font-size: 2rem; }
+            .card { padding: 1.5rem 1rem; }
+            .figure-inline { float: right; max-width: 130px; margin-left: 0.8rem; } 
+            .site-title { font-size: 1.2rem; }
+            .header-content { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notification" class="hidden" style="position: fixed; top: 90px; right: 20px; background: #22c55e; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <span id="notificationText">Message</span>
+    </div>
+
+    <div id="libraryModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2 style="font-family:'Cinzel'; margin:0; color:var(--color-primary);">Saved Archives</h2>
+                <button onclick="toggleLibrary()" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            </div>
+            <div id="savedList">
+                <p style="text-align:center; color:#888;">No saved articles found.</p>
+            </div>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="header-content">
+            <div class="logo-area">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="logo-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />
+                </svg>
+                <h1 class="site-title">World History Portal</h1>
+            </div>
+            <button onclick="toggleLibrary()" class="library-btn">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                My Library
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        
+        <div class="card" id="searchCard">
+            <div class="form-group" style="max-width: 300px; margin: 0 auto 2rem;">
+                <label style="display:block; text-align:center; margin-bottom:0.5rem; color:#666; font-weight:bold; font-size:0.85rem;">LANGUAGE / BAHASA</label>
+                <select id="languageSelector" class="styled-select">
+                    <option value="en" selected>English (Default)</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="ja">日本語</option>
+                    <option value="ar">العربية</option>
+                    <option value="zh">中文</option>
+                    <option value="ko">Korean</option>
+                </select>
+            </div>
+
+            <h2 class="hero-title">EXPLORE THE PAST</h2>
+            <p class="subtitle">Enter a topic, person, or event to discover history.</p>
+
+            <div class="search-box">
+                <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="searchInput" class="styled-input styled-input-search" 
+                       placeholder="e.g. Majapahit, Napoleon, Cold War..." onkeypress="handleEnter(event)">
+                <button onclick="searchHistory()" class="search-btn">SEARCH</button>
+            </div>
+
+            <div class="chips-container">
+                <button onclick="setQuery('Sejarah Candi Borobudur')" class="chip">Borobudur</button>
+                <button onclick="setQuery('Revolusi Industri')" class="chip">Industrial Revolution</button>
+                <button onclick="setQuery('Perang Dunia II')" class="chip">World War II</button>
+            </div>
+        </div>
+
+        <div id="loadingState" class="loader-container">
+            <div class="portal-ring">
+                <div class="ring-outer"></div>
+                <div class="ring-inner"></div>
+            </div>
+            <p style="color: var(--color-primary); font-weight: bold; font-size: 1.2rem; font-family: 'Cinzel', serif;">Opening Time Portal...</p>
+            <p style="font-size: 0.9rem; color: #888; margin-top: 5px;">Consulting archives & retrieving images...</p>
+            <button onclick="cancelSearch()" class="cancel-btn">Cancel Search</button>
+        </div>
+
+        <div id="resultContainer" class="card hidden" style="text-align: left;">
+            
+            <div class="action-bar">
+                <button id="ttsBtn" onclick="toggleSpeech()" class="action-btn" title="Listen (Text-to-Speech)">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                </button>
+                <button onclick="saveToLibrary()" class="action-btn" title="Bookmark to Library">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                </button>
+                <button onclick="printArticle()" class="action-btn" title="Print / PDF">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                </button>
+            </div>
+
+            <article id="contentBody" class="article-content">
+                </article>
+
+            <div id="recommendations" class="recommendations-area hidden">
+                <p class="rec-title">Explore Related Topics</p>
+                <div class="chips-container" id="recChips"></div>
+            </div>
+
+            <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1);">
+                <h4 style="font-size: 0.9rem; color: #888; margin-bottom: 1rem; text-transform:uppercase; letter-spacing:1px;">Reference Sources:</h4>
+                <div id="sourcesList" style="font-size: 0.9rem; display: grid; gap: 8px;"></div>
+            </div>
+            
+            <div class="search-btn-group" style="margin-top: 2.5rem; text-align: center; display:flex; justify-content:center; gap:15px;">
+                <button onclick="copyContent()" class="search-btn" style="position:static; background:#4E342E;">
+                    Copy Text
+                </button>
+                <button onclick="resetSearch()" class="search-btn" style="position:static; background:#fff; color:var(--color-primary); border:2px solid var(--color-primary);">
+                    New Search
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <button id="scrollTopBtn" onclick="scrollToTop()" title="Go to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <footer>
+        &copy; 2025 World History Portal. <br>
+    </footer>
+
+    <script>
+        // API Config
+        const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        const GEMINI_API_KEY = "AIzaSyCWcrLL3CN9Ynz7V7l0Pg6L2djbMBMD01E"; 
+
+        // UI Elements
+        const searchInput = document.getElementById('searchInput');
+        const searchCard = document.getElementById('searchCard');
+        const resultContainer = document.getElementById('resultContainer');
+        const loadingState = document.getElementById('loadingState');
+        const contentBody = document.getElementById('contentBody');
+        const languageSelector = document.getElementById('languageSelector');
+        const notification = document.getElementById('notification');
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        const ttsBtn = document.getElementById('ttsBtn');
+        const libraryModal = document.getElementById('libraryModal');
+        const recArea = document.getElementById('recommendations');
+        const recChips = document.getElementById('recChips');
+
+        // Global Variables for Control
+        let currentAbortController = null;
+        let isSpeaking = false;
+        let speechUtterance = null;
+        let currentTitle = "";
+        let currentImage = null;
+
+        // Scroll to Top Logic
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                scrollTopBtn.style.display = "flex";
+            } else {
+                scrollTopBtn.style.display = "none";
+            }
+        };
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function setQuery(text) {
+            searchInput.value = text;
+            searchHistory();
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') searchHistory();
+        }
+
+        function resetSearch() {
+            stopSpeech();
+            resultContainer.classList.add('hidden');
+            searchCard.classList.remove('hidden');
+            searchInput.value = '';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function showNotification(msg) {
+            document.getElementById('notificationText').innerText = msg;
+            notification.classList.remove('hidden');
+            setTimeout(() => notification.classList.add('hidden'), 2500);
+        }
+
+        // --- NEW: Cancel Logic ---
+        function cancelSearch() {
+            if (currentAbortController) {
+                currentAbortController.abort();
+                currentAbortController = null;
+            }
+            loadingState.style.display = 'none';
+            searchCard.classList.remove('hidden');
+            showNotification("Search cancelled");
+        }
+
+        // --- NEW: Text-to-Speech Logic ---
+        function toggleSpeech() {
+            if (isSpeaking) {
+                stopSpeech();
+            } else {
+                startSpeech();
+            }
+        }
+
+        function startSpeech() {
+            const text = contentBody.innerText;
+            if (!text) return;
+
+            // Get Language
+            const langCode = languageSelector.value;
+            
+            speechUtterance = new SpeechSynthesisUtterance(text);
+            speechUtterance.lang = langCode === 'id' ? 'id-ID' : 
+                                   langCode === 'es' ? 'es-ES' : 
+                                   langCode === 'fr' ? 'fr-FR' :
+                                   langCode === 'de' ? 'de-DE' :
+                                   langCode === 'ja' ? 'ja-JP' : 'en-US';
+            
+            speechUtterance.rate = 0.9; // Sedikit lebih lambat untuk sejarah
+
+            speechUtterance.onend = () => {
+                isSpeaking = false;
+                ttsBtn.classList.remove('active');
+            };
+
+            speechSynthesis.speak(speechUtterance);
+            isSpeaking = true;
+            ttsBtn.classList.add('active');
+        }
+
+        function stopSpeech() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            isSpeaking = false;
+            ttsBtn.classList.remove('active');
+        }
+
+        // --- NEW: Library / Local Storage Logic ---
+        function saveToLibrary() {
+            if (!contentBody.innerHTML) return;
+            
+            const savedItem = {
+                id: Date.now(),
+                title: currentTitle || searchInput.value,
+                html: contentBody.innerHTML,
+                image: currentImage ? currentImage.url : null,
+                date: new Date().toLocaleDateString()
+            };
+
+            let library = JSON.parse(localStorage.getItem('historyLibrary')) || [];
+            // Cek duplikat
+            const exists = library.some(item => item.title === savedItem.title);
+            if(exists) {
+                showNotification("Article already saved!");
+                return;
+            }
+
+            library.push(savedItem);
+            localStorage.setItem('historyLibrary', JSON.stringify(library));
+            showNotification("Saved to Library!");
+        }
+
+        function toggleLibrary() {
+            const isHidden = libraryModal.style.display === 'none' || libraryModal.style.display === '';
+            if (isHidden) {
+                renderLibrary();
+                libraryModal.style.display = 'flex';
+            } else {
+                libraryModal.style.display = 'none';
+            }
+        }
+
+        function renderLibrary() {
+            const list = document.getElementById('savedList');
+            let library = JSON.parse(localStorage.getItem('historyLibrary')) || [];
+            
+            if (library.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#888;">No saved articles found.</p>';
+                return;
+            }
+
+            let html = '';
+            library.reverse().forEach(item => {
+                html += `
+                <div class="saved-item">
+                    <div>
+                        <div class="saved-title" onclick="loadSavedArticle(${item.id})">${item.title}</div>
+                        <small style="color:#888;">Saved: ${item.date}</small>
+                    </div>
+                    <button onclick="deleteSaved(${item.id})" style="color:red; border:none; background:none; cursor:pointer;">🗑️</button>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function loadSavedArticle(id) {
+            let library = JSON.parse(localStorage.getItem('historyLibrary')) || [];
+            const item = library.find(i => i.id === id);
+            if (item) {
+                contentBody.innerHTML = item.html;
+                currentTitle = item.title;
+                
+                // Hide search, Show result
+                searchCard.classList.add('hidden');
+                loadingState.style.display = 'none';
+                resultContainer.classList.remove('hidden');
+                recArea.classList.add('hidden'); // Hide recs for saved items
+                libraryModal.style.display = 'none';
+                document.getElementById('sourcesList').innerHTML = '<p>Offline Copy</p>';
+            }
+        }
+
+        function deleteSaved(id) {
+            let library = JSON.parse(localStorage.getItem('historyLibrary')) || [];
+            library = library.filter(i => i.id !== id);
+            localStorage.setItem('historyLibrary', JSON.stringify(library));
+            renderLibrary();
+        }
+
+        // --- NEW: Print Logic ---
+        function printArticle() {
+            window.print();
+        }
+
+        // --- EXISTING LOGIC: Wiki Image Fetcher ---
+        async function fetchWikiImage(query, lang, width = 400) {
+            try {
+                // 1. Search for page title
+                const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+                const searchRes = await fetch(searchUrl);
+                const searchData = await searchRes.json();
+                
+                if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
+                    if (lang !== 'en') return fetchWikiImage(query, 'en', width); // Fallback to English
+                    return null;
+                }
+
+                const title = searchData.query.search[0].title;
+                // 2. Fetch image info
+                const imgUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=${width}&origin=*`;
+                const imgRes = await fetch(imgUrl);
+                const imgData = await imgRes.json();
+                
+                const pages = imgData.query.pages;
+                const pageId = Object.keys(pages)[0];
+                const src = pages[pageId].thumbnail?.source;
+
+                if (src) {
+                    return { 
+                        url: src, 
+                        title: title, 
+                        source: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}` 
+                    };
+                }
+            } catch (e) {
+                console.error("Wiki Image Error", e);
+            }
+            return null;
+        }
+
+        // --- EXISTING LOGIC: Renderer ---
+        function renderMarkdown(text, docImg, figImgs) {
+            // Clean recommendation part from markdown first to avoid rendering it in main text
+            const splitRecs = text.split('---RECOMMENDATIONS---');
+            const mainText = splitRecs[0];
+            
+            let html = DOMPurify.sanitize(marked.parse(mainText));
+
+            // 1. Inject Main Hero Image
+            if (docImg) {
+                currentImage = docImg; // Store for saving
+                const imgHtml = `
+                    <figure class="figure-hero">
+                        <img src="${docImg.url}" onerror="this.style.display='none'">
+                        <figcaption>${docImg.title}<br><a href="${docImg.source}" target="_blank">[Sumber Foto: Wikipedia]</a></figcaption>
+                    </figure>`;
+                
+                if (html.includes('[GAMBAR:')) {
+                    html = html.replace(/\[GAMBAR:.*?\]/, imgHtml);
+                } else {
+                    html = imgHtml + html;
+                }
+            }
+            html = html.replace(/\[GAMBAR:.*?\]/g, ''); 
+
+            // 2. Inject Figure Images
+            if (figImgs && figImgs.length > 0) {
+                figImgs.forEach(fig => {
+                    const imgHtml = `
+                        <figure class="figure-inline">
+                            <img src="${fig.url}" onerror="this.style.display='none'">
+                            <figcaption>${fig.title}<br><a href="${fig.source}" target="_blank">[Sumber]</a></figcaption>
+                        </figure>`;
+                    
+                    const safeName = fig.queryName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`\\[FIGUR:\\s*${safeName}.*?\\]`, 'i');
+                    
+                    if (regex.test(html)) {
+                        html = html.replace(regex, imgHtml);
+                    }
+                });
+            }
+            html = html.replace(/\[FIGUR:.*?\]/g, '');
+
+            contentBody.innerHTML = html;
+            
+            // 3. Parse Recommendations
+            if (splitRecs.length > 1) {
+                parseRecommendations(splitRecs[1]);
+            } else {
+                recArea.classList.add('hidden');
+            }
+        }
+
+        function parseRecommendations(rawText) {
+            const topics = rawText.replace(/RELATED:/g, '').split(',').map(t => t.trim()).filter(t => t.length > 0);
+            
+            if (topics.length > 0) {
+                let html = '';
+                topics.forEach(topic => {
+                    html += `<button onclick="setQuery('${topic}')" class="chip" style="border-color:var(--color-accent);">${topic}</button>`;
+                });
+                recChips.innerHTML = html;
+                recArea.classList.remove('hidden');
+            }
+        }
+
+        // --- MAIN SEARCH FUNCTION (UPDATED) ---
+        async function searchHistory() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            currentTitle = query;
+            const langCode = languageSelector.value; 
+            const langName = languageSelector.options[languageSelector.selectedIndex].text;
+
+            // UI Reset
+            searchCard.classList.add('hidden');
+            loadingState.style.display = 'flex'; 
+            resultContainer.classList.add('hidden');
+            recArea.classList.add('hidden');
+            stopSpeech();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+
+            // Create AbortController
+            currentAbortController = new AbortController();
+            const signal = currentAbortController.signal;
+
+            const prompt = `
+                Act as an expert World Historian. 
+                Task: Create a comprehensive historical article about: "${query}".
+                
+                **VALIDATION**: If the topic is NOT about history (e.g., math, sports news, celebrities, coding), REFUSE neatly in ${langName}.
+                
+                **LANGUAGE**: Write the entire response in **${langName}**.
+                
+                **STRUCTURE**:
+                # Main Title (H1)
+                [GAMBAR: ${query}]
+                ## Background
+                ## Main Events
+                ## Key Figures
+                (Important: When you mention a key person for the first time, insert tag [FIGUR: Person Name] immediately after their name.)
+                ## Impact & Legacy
+                
+                **FORMAT**: 
+                - Use **bold** for important dates/names. 
+                - Use Tables if comparing data.
+                
+                **IMPORTANT ENDING**:
+                At the very end of your response, add a separator "---RECOMMENDATIONS---" followed by exactly 3 related historical topic names separated by commas. Example: "---RECOMMENDATIONS--- Topic A, Topic B, Topic C".
+            `;
+
+            try {
+                // 1. Call Gemini API
+                const res = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        tools: [{ google_search: {} }]
+                    }),
+                    signal: signal // Attach signal
+                });
+
+                const data = await res.json();
+                const candidate = data.candidates?.[0];
+                const text = candidate?.content?.parts?.[0]?.text || "Error: No content generated.";
+
+                // 2. Fetch Main Hero Image
+                const docImgPromise = fetchWikiImage(query, langCode, 600);
+                
+                // 3. Find Figures & Fetch Images
+                const figureMatches = [...text.matchAll(/\[FIGUR:\s*(.*?)\]/g)];
+                const uniqueFigures = [...new Set(figureMatches.map(m => m[1]))];
+                
+                const figImgPromises = uniqueFigures.map(name => 
+                    fetchWikiImage(name, langCode, 300).then(img => img ? { ...img, queryName: name } : null)
+                );
+
+                const [docImg, ...rawFigImgs] = await Promise.all([docImgPromise, ...figImgPromises]);
+
+                // 4. Filter Duplicate Images
+                const distinctFigImgs = [];
+                const seenUrls = new Set();
+                
+                if(docImg && docImg.url) seenUrls.add(docImg.url); 
+
+                rawFigImgs.forEach(fig => {
+                    if(fig && fig.url && !seenUrls.has(fig.url)) {
+                        seenUrls.add(fig.url);
+                        distinctFigImgs.push(fig);
+                    }
+                });
+
+                // 5. Render
+                renderMarkdown(text, docImg, distinctFigImgs);
+
+                // 6. Show Sources
+                const sourcesDiv = document.getElementById('sourcesList');
+                sourcesDiv.innerHTML = '';
+                if (candidate?.groundingMetadata?.groundingAttributions) {
+                    candidate.groundingMetadata.groundingAttributions.forEach(src => {
+                        if(src.web?.uri) {
+                            sourcesDiv.innerHTML += `<a href="${src.web.uri}" target="_blank" style="display:block; color:#6D4C41; margin-bottom:4px; text-decoration:none;">🔗 ${src.web.title || 'Reference Source'}</a>`;
+                        }
+                    });
+                }
+
+                loadingState.style.display = 'none';
+                resultContainer.classList.remove('hidden');
+
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    console.log('Fetch aborted');
+                } else {
+                    alert("Error: " + err.message);
+                    loadingState.style.display = 'none';
+                    searchCard.classList.remove('hidden');
+                }
+            }
+        }
+
+        function copyContent() {
+            navigator.clipboard.writeText(contentBody.innerText);
+            showNotification("Article text copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
