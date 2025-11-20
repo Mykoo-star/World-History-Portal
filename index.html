@@ -20,11 +20,12 @@
         /* --- CSS MANUAL (ENHANCED) --- */
         :root {
             --color-primary: #5D4037; 
-            --color-accent: #8D6E63;  
+            --color-accent: #8D6E63;   
             --color-bg: #EBE3D5;      
-            --color-card: rgba(245, 240, 230, 0.95); 
+            --color-card: rgba(245, 240, 230, 0.65); 
             --color-text: #3E2723;
             --color-red: #D21F3C;
+            --color-green: #2E7D32;
             --shadow-soft: 0 10px 30px rgba(62, 39, 35, 0.15);
         }
 
@@ -35,17 +36,53 @@
             padding: 0;
             font-family: 'Merriweather', serif;
             color: var(--color-text);
-            background-color: var(--color-bg);
-            background-image: 
-                linear-gradient(rgba(235, 227, 213, 0.85), rgba(235, 227, 213, 0.85)), 
-                url('https://images.unsplash.com/photo-1596402184320-417e7178b2cd?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            /* Background dihandle oleh div terpisah untuk slideshow */
+            background-color: #1a1a1a; 
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND SLIDESHOW --- */
+        #bg-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background-color: #000;
+        }
+        
+        .bg-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2.5s ease-in-out; /* Transisi lebih lambat agar smooth */
+            z-index: -1;
+        }
+
+        .bg-slide.active {
+            opacity: 1;
+            z-index: 0; /* Pastikan yang aktif di atas */
+        }
+
+        /* Overlay gelap agar teks putih terbaca */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Sedikit lebih gelap (50%) untuk kontras gambar baru */
+            z-index: -1;
+            pointer-events: none;
         }
 
         /* Header Styles */
@@ -95,10 +132,12 @@
         }
         .library-btn:hover { background: var(--color-primary); color: #fff; }
 
-        .main-container { flex: 1; width: 100%; max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+        .main-container { flex: 1; width: 100%; max-width: 900px; margin: 0 auto; padding: 2rem 1rem; display: flex; flex-direction: column; justify-content: center;}
 
-        /* Card Styles */
-        .card {
+        /* --- CARD STYLES MODIFIED FOR TRANSPARENCY --- */
+        
+        /* Kelas umum untuk kartu hasil (tetap solid) */
+        .card-result {
             background-color: var(--color-card);
             border-radius: 16px;
             box-shadow: var(--shadow-soft);
@@ -109,63 +148,100 @@
             animation: slideUp 0.6s ease-out;
             position: relative;
         }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--color-primary);
-            font-weight: 800;
+        /* ID khusus untuk Search Card (Transparan) */
+        #searchCard {
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            text-align: center;
+            padding: 2rem 1rem;
+            animation: fadeIn 1s ease-out;
         }
-        .subtitle { color: #5d4037; font-size: 1.1rem; margin-bottom: 2rem; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Typography untuk Search Screen (Putih dengan Shadow) */
+        #searchCard .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem; /* Lebih besar */
+            margin-bottom: 0.5rem;
+            color: #FFFFFF; /* Text Putih */
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.9); /* Shadow Kuat */
+            letter-spacing: 2px;
+        }
         
-        /* Form Elements */
+        #searchCard .subtitle { 
+            color: #E0E0E0; 
+            font-size: 1.2rem; 
+            margin-bottom: 2.5rem; 
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+            font-weight: 500;
+        }
+
+        #searchCard label {
+            color: #FFF !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        /* Form Elements (Glassmorphism) */
         .styled-select, .styled-input {
             width: 100%;
-            padding: 12px 20px;
-            border: 2px solid rgba(141, 110, 99, 0.3);
-            border-radius: 12px;
+            padding: 14px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px; /* Lebih bulat */
             font-size: 1rem;
             font-family: inherit;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85); /* Semi transparan putih */
+            backdrop-filter: blur(5px);
             outline: none;
             transition: all 0.3s ease;
+            color: #3E2723;
+            font-weight: 600;
         }
         .styled-select:focus, .styled-input:focus { 
-            border-color: var(--color-primary); background: #fff;
-            box-shadow: 0 0 0 3px rgba(93, 64, 55, 0.1);
+            background: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            border-color: #fff;
         }
 
         .search-box { position: relative; margin-top: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto; }
         .search-icon {
-            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-            color: var(--color-accent); width: 24px; height: 24px;
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            color: var(--color-primary); width: 24px; height: 24px;
+            z-index: 10;
         }
-        .styled-input-search { padding-left: 55px; padding-right: 120px; font-size: 1.1rem; }
+        .styled-input-search { padding-left: 55px; padding-right: 130px; font-size: 1.1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         
         .search-btn {
-            position: absolute; right: 8px; top: 8px; bottom: 8px;
+            position: absolute; right: 6px; top: 6px; bottom: 6px;
             background-color: var(--color-primary); color: white;
-            border: none; border-radius: 8px; padding: 0 20px;
+            border: none; border-radius: 25px; padding: 0 25px;
             font-weight: bold; cursor: pointer; font-family: 'Cinzel', serif;
             transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .search-btn:hover { background-color: #3E2723; transform: translateY(-2px); }
+        .search-btn:hover { background-color: #3E2723; transform: scale(1.05); }
 
         /* Chips */
-        .chips-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 1.5rem; }
+        .chips-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 2rem; }
         .chip {
-            background: rgba(255, 255, 255, 0.6); 
-            border: 1px solid rgba(141, 110, 99, 0.3); 
-            padding: 8px 16px;
-            border-radius: 20px; font-size: 0.9rem; color: var(--color-primary);
-            cursor: pointer; transition: all 0.3s; font-weight: 500;
+            background: rgba(0, 0, 0, 0.5); /* Gelap transparan */
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            padding: 10px 20px;
+            border-radius: 25px; font-size: 0.95rem; color: #fff;
+            cursor: pointer; transition: all 0.3s; font-weight: 600;
+            backdrop-filter: blur(4px);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
-        .chip:hover { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+        .chip:hover { background: #fff; color: var(--color-primary); border-color: #fff; text-shadow: none; transform: translateY(-3px); }
 
-        /* --- NEW ENHANCED LOADING ANIMATION --- */
-        .loader-container { display: none; flex-direction: column; align-items: center; padding: 3rem 0; }
+        /* --- LOADER --- */
+        .loader-container { display: none; flex-direction: column; align-items: center; padding: 3rem 0; background: rgba(255,255,255,0.9); border-radius: 16px; margin-top: 2rem;}
         
         .portal-ring {
             position: relative;
@@ -193,19 +269,13 @@
         @keyframes spinReverse { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
 
         .cancel-btn {
-            margin-top: 15px;
-            background: transparent;
-            border: 1px solid var(--color-red);
-            color: var(--color-red);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
+            margin-top: 15px; background: transparent; border: 1px solid var(--color-red);
+            color: var(--color-red); padding: 6px 16px; border-radius: 20px;
+            font-size: 0.85rem; cursor: pointer; transition: 0.2s;
         }
         .cancel-btn:hover { background: var(--color-red); color: white; }
 
-        /* Content Typography */
+        /* Content Typography (Inside Result Card) */
         .article-content { text-align: left; line-height: 1.8; color: #2D2420; }
         .article-content h1 { 
             font-family: 'Cinzel', serif; font-size: 2.2rem; color: #2D2420; 
@@ -227,121 +297,108 @@
             font-style: italic; border-radius: 0 8px 8px 0; clear: both;
         }
 
-        /* Action Bar (New) */
-        .action-bar {
-            display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 1rem;
+        /* Fun Fact Styles */
+        .fun-fact-box {
+            margin: 2rem 0; padding: 1.5rem; background-color: #FFF8E1; 
+            border: 2px solid #FFC107; border-radius: 12px; position: relative;
+            animation: slideUp 0.8s ease;
         }
-        .action-btn {
-            background: #fff; border: 1px solid #ccc; color: var(--color-primary);
-            width: 40px; height: 40px; border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; cursor: pointer;
-            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .fun-fact-title {
+            font-family: 'Cinzel', serif; color: #D4A017; font-weight: bold;
+            display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;
         }
+
+        /* Table Styles */
+        .table-scroll-container { width: 100%; overflow-x: auto; margin: 2rem 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #8D6E63; border-radius: 8px; }
+        .article-content table { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 0.95rem; background-color: #fff; }
+        .article-content th, .article-content td { border: 1px solid #5D4037; padding: 12px 15px; text-align: left; }
+        .article-content th { background-color: #D7CCC8; color: #3E2723; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; border-bottom: 2px solid #3E2723; }
+        .article-content tr:nth-child(even) { background-color: #FBF8F5; }
+
+        /* Quiz Styles */
+        .quiz-section-overlay { display: none; animation: fadeIn 0.4s; }
+        .quiz-start-btn {
+            width: 100%; padding: 1.2rem; background: var(--color-primary); color: white;
+            font-family: 'Cinzel', serif; font-weight: bold; font-size: 1.1rem; border: none;
+            border-radius: 12px; cursor: pointer; margin-top: 2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: all 0.3s;
+        }
+        .quiz-start-btn:hover { background: #3E2723; transform: scale(1.02); }
+        .quiz-container { margin: 0; padding: 1rem; background: #fff; border-radius: 16px; text-align: left; }
+        .quiz-header { font-family: 'Cinzel', serif; color: var(--color-primary); text-align: center; font-size: 1.6rem; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .quiz-back-btn { background: transparent; border: 2px solid var(--color-primary); color: var(--color-primary); padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 5px; }
+        .quiz-back-btn:hover { background: var(--color-primary); color: white; }
+        .quiz-item { margin-bottom: 2.5rem; border-bottom: 1px dashed #ddd; padding-bottom: 1.5rem; }
+        .quiz-question { font-weight: bold; margin-bottom: 15px; color: #333; font-size: 1.1rem; }
+        .quiz-options { display: grid; gap: 10px; }
+        .quiz-btn { width: 100%; text-align: left; padding: 12px 15px; border: 1px solid #ccc; background: #f9f9f9; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        .quiz-btn:hover { background: #eee; }
+        .quiz-btn.correct { background: #C8E6C9; border-color: #2E7D32; color: #1B5E20; font-weight: bold; }
+        .quiz-btn.wrong { background: #FFCDD2; border-color: #C62828; color: #B71C1C; opacity: 0.7; }
+        .quiz-explanation { display: none; margin-top: 12px; padding: 12px; background-color: #E3F2FD; border-left: 4px solid #2196F3; border-radius: 4px; font-size: 0.9rem; color: #0D47A1; font-style: italic; animation: fadeIn 0.5s; }
+
+        /* Action Bar */
+        .action-bar { display: flex; justify-content: center; gap: 15px; margin-bottom: 2rem; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 1rem; }
+        .action-btn { background: #fff; border: 1px solid #ccc; color: var(--color-primary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .action-btn:hover { background: var(--color-primary); color: #fff; transform: translateY(-2px); }
         .action-btn.active { background: var(--color-red); color: #fff; animation: pulse 1s infinite; border-color: var(--color-red); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         /* Recommendations */
-        .recommendations-area {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: rgba(255,255,255,0.5);
-            border-radius: 12px;
-            text-align: center;
-        }
+        .recommendations-area { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.5); border-radius: 12px; text-align: center; }
         .rec-title { font-family: 'Cinzel', serif; color: var(--color-primary); margin-bottom: 1rem; font-size: 1.1rem; }
 
-        /* Table & Images */
-        .article-content table {
-            width: 100%; border-collapse: collapse; margin: 2rem 0;
-            font-size: 0.95rem; background-color: #fff;
-            display: block; overflow-x: auto; white-space: normal; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .article-content th, .article-content td { border: 1px solid #8D6E63; padding: 12px 15px; text-align: left; min-width: 140px; }
-        .article-content th { background-color: #D7CCC8; color: #3E2723; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
-        .article-content tr:nth-child(even) { background-color: #FBF8F5; }
-        .article-content table img, .article-content table .figure-inline { display: none !important; }
-
-        .figure-hero {
-            background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 8px; margin-bottom: 2rem; width: 100%;
-            max-height: 300px; overflow: hidden;
-        }
+        /* Images */
+        .figure-hero { background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; margin-bottom: 2rem; width: 100%; max-height: 300px; overflow: hidden; }
         .figure-hero img { width: 100%; height: 100%; display: block; object-fit: cover; }
-        
-        .figure-inline {
-            background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 8px; max-width: 180px; float: right; 
-            margin-left: 1.5rem; margin-bottom: 1rem; margin-top: 5px;
-            clear: right; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .figure-inline { background: #fff; padding: 5px; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; max-width: 180px; float: right; margin-left: 1.5rem; margin-bottom: 1rem; margin-top: 5px; clear: right; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .figure-inline img { width: 100%; height: auto; border-radius: 4px; aspect-ratio: 3/4; object-fit: cover; }
-        
-        figcaption {
-            font-size: 0.75rem; color: #666; padding: 8px 4px; text-align: center;
-            background: #f9f9f9; border-top: 1px solid #eee;
-        }
+        figcaption { font-size: 0.75rem; color: #666; padding: 8px 4px; text-align: center; background: #f9f9f9; border-top: 1px solid #eee; }
         figcaption a { color: var(--color-primary); text-decoration: none; font-weight: bold; display: inline-block; margin-top: 2px; }
 
         /* Library Modal */
-        #libraryModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 200;
-            display: none; justify-content: center; align-items: center;
-            backdrop-filter: blur(3px);
-        }
-        .modal-content {
-            background: #fff; width: 90%; max-width: 600px; max-height: 80vh;
-            border-radius: 16px; padding: 2rem; overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        .saved-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; border-bottom: 1px solid #eee;
-        }
+        #libraryModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); }
+        .modal-content { background: #fff; width: 90%; max-width: 600px; max-height: 80vh; border-radius: 16px; padding: 2rem; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .saved-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .saved-item:last-child { border-bottom: none; }
         .saved-title { font-weight: bold; color: var(--color-primary); cursor: pointer; }
         .saved-title:hover { text-decoration: underline; }
 
-        /* Print Media Query */
+        /* Print & Utils */
         @media print {
-            header, .search-box, .chips-container, #scrollTopBtn, footer, .action-bar, .recommendations-area, .search-btn-group, #searchCard { display: none !important; }
+            header, .search-box, .chips-container, #scrollTopBtn, footer, .action-bar, .recommendations-area, .search-btn-group, #searchCard, .quiz-section-overlay, .fun-fact-box, #quizStartBtnArea, #bg-slideshow, .bg-overlay { display: none !important; }
             body { background: white; color: black; display: block; }
             .main-container { max-width: 100%; padding: 0; margin: 0; }
-            .card { box-shadow: none; border: none; padding: 0; margin: 0; }
+            .card-result { box-shadow: none; border: none; padding: 0; margin: 0; background: white; }
             .article-content { font-size: 12pt; }
             .hidden { display: block !important; }
-            #resultContainer { display: block !important; }
+            #resultContainer, #articleView { display: block !important; }
         }
 
-        #scrollTopBtn {
-            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
-            background: var(--color-primary); color: white; border: none; border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 99;
-            display: none; align-items: center; justify-content: center;
-            transition: all 0.3s;
-        }
+        #scrollTopBtn { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--color-primary); color: white; border: none; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 99; display: none; align-items: center; justify-content: center; transition: all 0.3s; }
         #scrollTopBtn:hover { transform: translateY(-5px); background: #4E342E; }
 
-        footer { 
-            text-align: center; padding: 2rem; color: #795548; font-size: 0.9rem; 
-            background: rgba(235, 227, 213, 0.9); margin-top: auto; 
-        }
+        footer { text-align: center; padding: 2rem; color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,0.8); font-size: 0.9rem; background: transparent; margin-top: auto; }
 
         .hidden { display: none !important; }
         
         @media (max-width: 600px) {
-            .hero-title { font-size: 2rem; }
-            .card { padding: 1.5rem 1rem; }
+            .hero-title { font-size: 2.2rem !important; }
+            .card-result { padding: 1.5rem 1rem; }
             .figure-inline { float: right; max-width: 130px; margin-left: 0.8rem; } 
             .site-title { font-size: 1.2rem; }
             .header-content { justify-content: center; }
+            .search-btn { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
+
+    <!-- BACKGROUND SLIDESHOW CONTAINERS -->
+    <div id="bg-slideshow">
+        <!-- Images will be injected here by JS -->
+    </div>
+    <div class="bg-overlay"></div>
 
     <div id="notification" class="hidden" style="position: fixed; top: 90px; right: 20px; background: #22c55e; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
         <span id="notificationText">Message</span>
@@ -376,9 +433,10 @@
 
     <main class="main-container">
         
-        <div class="card" id="searchCard">
+        <!-- SEARCH CARD (Now Transparent) -->
+        <div id="searchCard">
             <div class="form-group" style="max-width: 300px; margin: 0 auto 2rem;">
-                <label style="display:block; text-align:center; margin-bottom:0.5rem; color:#666; font-weight:bold; font-size:0.85rem;">LANGUAGE / BAHASA</label>
+                <label style="display:block; text-align:center; margin-bottom:0.5rem;">LANGUAGE / BAHASA</label>
                 <select id="languageSelector" class="styled-select">
                     <option value="en" selected>English (Default)</option>
                     <option value="id">Bahasa Indonesia</option>
@@ -421,41 +479,71 @@
             <button onclick="cancelSearch()" class="cancel-btn">Cancel Search</button>
         </div>
 
-        <div id="resultContainer" class="card hidden" style="text-align: left;">
+        <!-- RESULT CARD (Still Solid/Opaque for Readability) -->
+        <div id="resultContainer" class="card-result hidden" style="text-align: left;">
             
-            <div class="action-bar">
-                <button id="ttsBtn" onclick="toggleSpeech()" class="action-btn" title="Listen (Text-to-Speech)">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
-                </button>
-                <button onclick="saveToLibrary()" class="action-btn" title="Bookmark to Library">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-                </button>
-                <button onclick="printArticle()" class="action-btn" title="Print / PDF">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                </button>
+            <div id="articleView">
+                <div class="action-bar">
+                    <button id="ttsBtn" onclick="toggleSpeech()" class="action-btn" title="Listen (Text-to-Speech)">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                    </button>
+                    <button onclick="saveToLibrary()" class="action-btn" title="Bookmark to Library">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                    </button>
+                    <button onclick="printArticle()" class="action-btn" title="Print / PDF">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    </button>
+                </div>
+
+                <article id="contentBody" class="article-content">
+                    </article>
+
+                <div id="funFactContainer" class="fun-fact-box hidden">
+                    <div class="fun-fact-title">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        DID YOU KNOW? / TAHUKAH ANDA?
+                    </div>
+                    <div id="funFactText" style="font-style: italic; color: #4E342E;"></div>
+                </div>
+
+                <div id="quizStartBtnArea" class="hidden">
+                    <button onclick="showQuizView()" class="quiz-start-btn">
+                        Start Quiz / Mulai Kuis (10 Questions)
+                    </button>
+                </div>
+
+                <div id="recommendations" class="recommendations-area hidden">
+                    <p class="rec-title">Explore Related Topics</p>
+                    <div class="chips-container" id="recChips" style="margin-top:0;"></div>
+                </div>
+
+                <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1);">
+                    <h4 style="font-size: 0.9rem; color: #888; margin-bottom: 1rem; text-transform:uppercase; letter-spacing:1px;">Reference Sources:</h4>
+                    <div id="sourcesList" style="font-size: 0.9rem; display: grid; gap: 8px;"></div>
+                </div>
+                
+                <div class="search-btn-group" style="margin-top: 2.5rem; text-align: center; display:flex; justify-content:center; gap:15px;">
+                    <button onclick="copyContent()" class="search-btn" style="position:static; background:#4E342E;">
+                        Copy Text
+                    </button>
+                    <button onclick="resetSearch()" class="search-btn" style="position:static; background:#fff; color:var(--color-primary); border:2px solid var(--color-primary);">
+                        New Search
+                    </button>
+                </div>
             </div>
 
-            <article id="contentBody" class="article-content">
-                </article>
-
-            <div id="recommendations" class="recommendations-area hidden">
-                <p class="rec-title">Explore Related Topics</p>
-                <div class="chips-container" id="recChips"></div>
-            </div>
-
-            <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.1);">
-                <h4 style="font-size: 0.9rem; color: #888; margin-bottom: 1rem; text-transform:uppercase; letter-spacing:1px;">Reference Sources:</h4>
-                <div id="sourcesList" style="font-size: 0.9rem; display: grid; gap: 8px;"></div>
-            </div>
-            
-            <div class="search-btn-group" style="margin-top: 2.5rem; text-align: center; display:flex; justify-content:center; gap:15px;">
-                <button onclick="copyContent()" class="search-btn" style="position:static; background:#4E342E;">
-                    Copy Text
+            <div id="quizSection" class="quiz-section-overlay">
+                <button onclick="closeQuizView()" class="quiz-back-btn">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Article / Kembali ke Artikel
                 </button>
-                <button onclick="resetSearch()" class="search-btn" style="position:static; background:#fff; color:var(--color-primary); border:2px solid var(--color-primary);">
-                    New Search
-                </button>
+
+                <div class="quiz-container">
+                    <h3 class="quiz-header">Knowledge Check / Kuis</h3>
+                    <div id="quizList"></div>
+                </div>
             </div>
+
         </div>
 
     </main>
@@ -471,7 +559,91 @@
     </footer>
 
     <script>
-        // API Config
+        // --- BACKGROUND SLIDESHOW LOGIC (EXPANDED COLLECTION) ---
+        const bgImages = [
+            // --- Tempat Bersejarah (Historical Places) ---
+            'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?q=80&w=2070&auto=format&fit=crop', // Borobudur
+            'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1996&auto=format&fit=crop', // Colosseum Rome
+            'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=2070&auto=format&fit=crop', // Great Wall China
+            'https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=2071&auto=format&fit=crop', // Taj Mahal
+            'https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=2070&auto=format&fit=crop', // Machu Picchu
+            'https://images.unsplash.com/photo-1579606038897-9b2c85c0659c?q=80&w=2069&auto=format&fit=crop', // Petra Jordan
+            'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=2070&auto=format&fit=crop', // Pyramids Egypt
+            'https://images.unsplash.com/photo-1555993539-1732b0258235?q=80&w=2070&auto=format&fit=crop', // Acropolis Greece
+
+            // --- Tokoh & Patung (Figures & Statues) ---
+            'https://images.unsplash.com/photo-1549887534-1541e9326642?q=80&w=2070&auto=format&fit=crop', // Greek Statue
+            'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2061&auto=format&fit=crop', // Classical Sculpture
+            'https://images.unsplash.com/photo-1519923041107-e4dc8d9193da?q=80&w=2070&auto=format&fit=crop', // Terracotta Warriors
+            'https://images.unsplash.com/photo-1510525009512-ad7fc13eefab?q=80&w=2070&auto=format&fit=crop', // Moai Easter Island
+            
+            // --- Lukisan & Seni (Paintings & Art) ---
+            'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?q=80&w=2006&auto=format&fit=crop', // Renaissance Art/Fresco
+            'https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?q=80&w=2070&auto=format&fit=crop', // Egyptian Hieroglyphs Art
+            
+            // --- Dokumentasi & Peristiwa (Documentation & Events) ---
+            'https://images.unsplash.com/photo-1461360370896-922624d12aa1?q=80&w=2074&auto=format&fit=crop', // Old Paper/Map
+            'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070&auto=format&fit=crop', // Ancient Library/Books
+            'https://images.unsplash.com/photo-1628268946761-666413e98092?q=80&w=2070&auto=format&fit=crop', // Old Compass/Navigation
+            'https://images.unsplash.com/photo-1534260933201-cd883d19082f?q=80&w=2070&auto=format&fit=crop', // Vintage Plane (War Era)
+            'https://images.unsplash.com/photo-1474487548417-781cb714d22f?q=80&w=2070&auto=format&fit=crop', // Steam Train/Industrial Revolution
+            'https://images.unsplash.com/photo-1505566485473-98fa4b2ce699?q=80&w=2070&auto=format&fit=crop'  // Viking Ship
+        ];
+
+        // Shuffle array to ensure random starting order
+        bgImages.sort(() => Math.random() - 0.5);
+
+        let currentBgIndex = 0;
+        const slideshowContainer = document.getElementById('bg-slideshow');
+
+        // Create dual-layer div strategy for smooth crossfades
+        const slide1 = document.createElement('div');
+        slide1.className = 'bg-slide active';
+        slide1.style.backgroundImage = `url('${bgImages[0]}')`;
+        
+        const slide2 = document.createElement('div');
+        slide2.className = 'bg-slide';
+        
+        slideshowContainer.appendChild(slide1);
+        slideshowContainer.appendChild(slide2);
+
+        let activeSlide = slide1;
+        let nextSlide = slide2;
+
+        function loadNextImage() {
+            currentBgIndex = (currentBgIndex + 1) % bgImages.length;
+            const nextImageUrl = bgImages[currentBgIndex];
+
+            // Preload image using Javascript Image object
+            const imgLoader = new Image();
+            imgLoader.src = nextImageUrl;
+
+            imgLoader.onload = () => {
+                // Image downloaded, now safe to swap
+                nextSlide.style.backgroundImage = `url('${nextImageUrl}')`;
+                
+                activeSlide.classList.remove('active');
+                nextSlide.classList.add('active');
+
+                // Swap refs
+                const temp = activeSlide;
+                activeSlide = nextSlide;
+                nextSlide = temp;
+
+                // Schedule next change
+                setTimeout(loadNextImage, 7000);
+            };
+
+            imgLoader.onerror = () => {
+                console.log("Failed to load image, skipping");
+                setTimeout(loadNextImage, 1000); // Try next image quicker
+            };
+        }
+
+        // Start the smart loop
+        setTimeout(loadNextImage, 7000);
+
+        // --- EXISTING LOGIC ---
         const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
         const GEMINI_API_KEY = "AIzaSyCWcrLL3CN9Ynz7V7l0Pg6L2djbMBMD01E"; 
 
@@ -488,6 +660,15 @@
         const libraryModal = document.getElementById('libraryModal');
         const recArea = document.getElementById('recommendations');
         const recChips = document.getElementById('recChips');
+        
+        // Quiz & Views Elements
+        const funFactContainer = document.getElementById('funFactContainer');
+        const funFactText = document.getElementById('funFactText');
+        
+        const articleView = document.getElementById('articleView');
+        const quizSection = document.getElementById('quizSection');
+        const quizStartBtnArea = document.getElementById('quizStartBtnArea');
+        const quizList = document.getElementById('quizList');
 
         // Global Variables for Control
         let currentAbortController = null;
@@ -495,6 +676,10 @@
         let speechUtterance = null;
         let currentTitle = "";
         let currentImage = null;
+        
+        // Variables for Android TTS Logic
+        let speechChunks = []; 
+        let currentChunkIndex = 0;
 
         // Scroll to Top Logic
         window.onscroll = function() {
@@ -522,6 +707,7 @@
             resultContainer.classList.add('hidden');
             searchCard.classList.remove('hidden');
             searchInput.value = '';
+            closeQuizView(); // Ensure we reset view
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
@@ -531,7 +717,6 @@
             setTimeout(() => notification.classList.add('hidden'), 2500);
         }
 
-        // --- NEW: Cancel Logic ---
         function cancelSearch() {
             if (currentAbortController) {
                 currentAbortController.abort();
@@ -542,7 +727,20 @@
             showNotification("Search cancelled");
         }
 
-        // --- NEW: Text-to-Speech Logic ---
+        // --- QUIZ VIEW TOGGLE LOGIC ---
+        function showQuizView() {
+            articleView.style.display = 'none';
+            quizSection.style.display = 'block';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function closeQuizView() {
+            quizSection.style.display = 'none';
+            articleView.style.display = 'block';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // --- TTS LOGIC ---
         function toggleSpeech() {
             if (isSpeaking) {
                 stopSpeech();
@@ -552,40 +750,62 @@
         }
 
         function startSpeech() {
-            const text = contentBody.innerText;
+            const text = contentBody.innerText; 
             if (!text) return;
-
-            // Get Language
-            const langCode = languageSelector.value;
-            
-            speechUtterance = new SpeechSynthesisUtterance(text);
-            speechUtterance.lang = langCode === 'id' ? 'id-ID' : 
-                                   langCode === 'es' ? 'es-ES' : 
-                                   langCode === 'fr' ? 'fr-FR' :
-                                   langCode === 'de' ? 'de-DE' :
-                                   langCode === 'ja' ? 'ja-JP' : 'en-US';
-            
-            speechUtterance.rate = 0.9; // Sedikit lebih lambat untuk sejarah
-
-            speechUtterance.onend = () => {
-                isSpeaking = false;
-                ttsBtn.classList.remove('active');
-            };
-
-            speechSynthesis.speak(speechUtterance);
+            stopSpeech();
             isSpeaking = true;
             ttsBtn.classList.add('active');
+
+            const langCode = languageSelector.value;
+            const selectedLang = langCode === 'id' ? 'id-ID' : 
+                                 langCode === 'es' ? 'es-ES' : 
+                                 langCode === 'fr' ? 'fr-FR' :
+                                 langCode === 'de' ? 'de-DE' :
+                                 langCode === 'ja' ? 'ja-JP' : 'en-US';
+
+            speechChunks = text.match(/[^.!?]+[.!?]+["']?|[^.!?]+$/g) || [text];
+            currentChunkIndex = 0;
+            speakNextChunk(selectedLang);
+        }
+
+        function speakNextChunk(lang) {
+            if (currentChunkIndex >= speechChunks.length || !isSpeaking) {
+                stopSpeech(); 
+                return;
+            }
+            const chunk = speechChunks[currentChunkIndex];
+            if (!chunk.trim()) {
+                currentChunkIndex++;
+                speakNextChunk(lang);
+                return;
+            }
+            speechUtterance = new SpeechSynthesisUtterance(chunk);
+            speechUtterance.lang = lang;
+            speechUtterance.rate = 0.9; 
+            speechUtterance.onend = () => {
+                currentChunkIndex++;
+                if (isSpeaking) {
+                    speakNextChunk(lang);
+                }
+            };
+            speechUtterance.onerror = (e) => {
+                console.error("TTS Error:", e);
+                currentChunkIndex++;
+                if (isSpeaking) speakNextChunk(lang);
+            };
+            speechSynthesis.speak(speechUtterance);
         }
 
         function stopSpeech() {
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
             isSpeaking = false;
+            if (speechSynthesis) {
+                speechSynthesis.cancel(); 
+            }
             ttsBtn.classList.remove('active');
+            speechChunks = [];
+            currentChunkIndex = 0;
         }
 
-        // --- NEW: Library / Local Storage Logic ---
         function saveToLibrary() {
             if (!contentBody.innerHTML) return;
             
@@ -593,12 +813,12 @@
                 id: Date.now(),
                 title: currentTitle || searchInput.value,
                 html: contentBody.innerHTML,
+                funfact: funFactText.innerHTML, 
                 image: currentImage ? currentImage.url : null,
                 date: new Date().toLocaleDateString()
             };
 
             let library = JSON.parse(localStorage.getItem('historyLibrary')) || [];
-            // Cek duplikat
             const exists = library.some(item => item.title === savedItem.title);
             if(exists) {
                 showNotification("Article already saved!");
@@ -650,11 +870,21 @@
                 contentBody.innerHTML = item.html;
                 currentTitle = item.title;
                 
-                // Hide search, Show result
+                if (item.funfact) {
+                    funFactText.innerHTML = item.funfact;
+                    funFactContainer.classList.remove('hidden');
+                } else {
+                    funFactContainer.classList.add('hidden');
+                }
+
+                // Reset Views
+                closeQuizView();
+                quizStartBtnArea.classList.add('hidden'); // Hide quiz button for saved items (cannot regenerate quiz simply)
+                
                 searchCard.classList.add('hidden');
                 loadingState.style.display = 'none';
                 resultContainer.classList.remove('hidden');
-                recArea.classList.add('hidden'); // Hide recs for saved items
+                recArea.classList.add('hidden');
                 libraryModal.style.display = 'none';
                 document.getElementById('sourcesList').innerHTML = '<p>Offline Copy</p>';
             }
@@ -667,26 +897,83 @@
             renderLibrary();
         }
 
-        // --- NEW: Print Logic ---
         function printArticle() {
             window.print();
         }
 
-        // --- EXISTING LOGIC: Wiki Image Fetcher ---
+        // --- QUIZ RENDER LOGIC ---
+        function renderQuiz(jsonString) {
+            try {
+                const cleanedJson = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+                const quizData = JSON.parse(cleanedJson);
+
+                if (!quizData || quizData.length === 0) return;
+
+                let html = '';
+                quizData.forEach((q, index) => {
+                    let optionsHtml = '';
+                    const safeExplanation = q.explanation ? q.explanation.replace(/'/g, "&#39;") : "Correct answer.";
+
+                    q.options.forEach((opt, optIndex) => {
+                        optionsHtml += `<button class="quiz-btn" data-opt-index="${optIndex}" onclick="checkAnswer(this, ${optIndex === q.answer_index}, ${q.answer_index}, 'exp-${index}')">${opt}</button>`;
+                    });
+
+                    html += `
+                        <div class="quiz-item">
+                            <div class="quiz-question">${index + 1}. ${q.question}</div>
+                            <div class="quiz-options">${optionsHtml}</div>
+                            <div id="exp-${index}" class="quiz-explanation">
+                                <strong>Explanation:</strong>
+                                ${q.explanation || "No explanation provided."}
+                            </div>
+                        </div>
+                    `;
+                });
+                quizList.innerHTML = html;
+                quizStartBtnArea.classList.remove('hidden'); // Show the start button
+            } catch (e) {
+                console.error("Quiz Parsing Error", e);
+                quizStartBtnArea.classList.add('hidden');
+            }
+        }
+
+        function checkAnswer(btn, isCorrect, correctIndex, expId) {
+            const parent = btn.parentElement;
+            const allBtns = parent.querySelectorAll('button');
+            
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.style.cursor = 'default';
+                if (parseInt(b.getAttribute('data-opt-index')) === correctIndex) {
+                    b.classList.add('correct');
+                }
+            });
+
+            if (!isCorrect) {
+                btn.classList.add('wrong');
+                showNotification("Incorrect. See explanation.");
+            } else {
+                showNotification("Correct Answer! 🎉");
+            }
+
+            const expBox = document.getElementById(expId);
+            if (expBox) {
+                expBox.style.display = 'block';
+            }
+        }
+
         async function fetchWikiImage(query, lang, width = 400) {
             try {
-                // 1. Search for page title
                 const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
                 const searchRes = await fetch(searchUrl);
                 const searchData = await searchRes.json();
                 
                 if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
-                    if (lang !== 'en') return fetchWikiImage(query, 'en', width); // Fallback to English
+                    if (lang !== 'en') return fetchWikiImage(query, 'en', width);
                     return null;
                 }
 
                 const title = searchData.query.search[0].title;
-                // 2. Fetch image info
                 const imgUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=${width}&origin=*`;
                 const imgRes = await fetch(imgUrl);
                 const imgData = await imgRes.json();
@@ -708,17 +995,24 @@
             return null;
         }
 
-        // --- EXISTING LOGIC: Renderer ---
         function renderMarkdown(text, docImg, figImgs) {
-            // Clean recommendation part from markdown first to avoid rendering it in main text
-            const splitRecs = text.split('---RECOMMENDATIONS---');
-            const mainText = splitRecs[0];
-            
+            const funFactSplit = text.split('---FUNFACT---');
+            let mainText = funFactSplit[0];
+            let remainder = funFactSplit[1] || '';
+
+            const quizSplit = remainder.split('---QUIZJSON---');
+            let funFactContent = quizSplit[0];
+            let remainder2 = quizSplit[1] || '';
+
+            const recSplit = remainder2.split('---RECOMMENDATIONS---');
+            let quizJsonContent = recSplit[0];
+            let recContent = recSplit[1] || '';
+
+            // 1. Render Main Content
             let html = DOMPurify.sanitize(marked.parse(mainText));
 
-            // 1. Inject Main Hero Image
             if (docImg) {
-                currentImage = docImg; // Store for saving
+                currentImage = docImg; 
                 const imgHtml = `
                     <figure class="figure-hero">
                         <img src="${docImg.url}" onerror="this.style.display='none'">
@@ -733,7 +1027,6 @@
             }
             html = html.replace(/\[GAMBAR:.*?\]/g, ''); 
 
-            // 2. Inject Figure Images
             if (figImgs && figImgs.length > 0) {
                 figImgs.forEach(fig => {
                     const imgHtml = `
@@ -752,11 +1045,31 @@
             }
             html = html.replace(/\[FIGUR:.*?\]/g, '');
 
+            // --- WRAP TABLES FOR SCROLLING (NEW FEATURE) ---
+            // We use a regex replace to wrap <table> in <div class="table-scroll-container">
+            html = html.replace(/<table/g, '<div class="table-scroll-container"><table');
+            html = html.replace(/<\/table>/g, '</table></div>');
+
             contentBody.innerHTML = html;
+
+            // 2. Render Fun Fact
+            if (funFactContent && funFactContent.trim().length > 0) {
+                funFactText.innerText = funFactContent.trim();
+                funFactContainer.classList.remove('hidden');
+            } else {
+                funFactContainer.classList.add('hidden');
+            }
+
+            // 3. Render Quiz (Preload data, but don't show view yet)
+            if (quizJsonContent && quizJsonContent.trim().length > 0) {
+                renderQuiz(quizJsonContent);
+            } else {
+                quizStartBtnArea.classList.add('hidden');
+            }
             
-            // 3. Parse Recommendations
-            if (splitRecs.length > 1) {
-                parseRecommendations(splitRecs[1]);
+            // 4. Render Recs
+            if (recContent && recContent.trim().length > 0) {
+                parseRecommendations(recContent);
             } else {
                 recArea.classList.add('hidden');
             }
@@ -768,14 +1081,13 @@
             if (topics.length > 0) {
                 let html = '';
                 topics.forEach(topic => {
-                    html += `<button onclick="setQuery('${topic}')" class="chip" style="border-color:var(--color-accent);">${topic}</button>`;
+                    html += `<button onclick="setQuery('${topic}')" class="chip" style="border-color:var(--color-accent); color:#3E2723; background:#fff;">${topic}</button>`;
                 });
                 recChips.innerHTML = html;
                 recArea.classList.remove('hidden');
             }
         }
 
-        // --- MAIN SEARCH FUNCTION (UPDATED) ---
         async function searchHistory() {
             const query = searchInput.value.trim();
             if (!query) return;
@@ -784,15 +1096,16 @@
             const langCode = languageSelector.value; 
             const langName = languageSelector.options[languageSelector.selectedIndex].text;
 
-            // UI Reset
             searchCard.classList.add('hidden');
             loadingState.style.display = 'flex'; 
             resultContainer.classList.add('hidden');
             recArea.classList.add('hidden');
+            funFactContainer.classList.add('hidden');
+            quizStartBtnArea.classList.add('hidden');
             stopSpeech();
+            closeQuizView(); // Reset to article view
             window.scrollTo({top: 0, behavior: 'smooth'});
 
-            // Create AbortController
             currentAbortController = new AbortController();
             const signal = currentAbortController.signal;
 
@@ -811,18 +1124,33 @@
                 ## Main Events
                 ## Key Figures
                 (Important: When you mention a key person for the first time, insert tag [FIGUR: Person Name] immediately after their name.)
+                ## Data Table (Required if possible)
+                (If there is data like timeline, stats, or comparison, create a Markdown TABLE here.)
                 ## Impact & Legacy
                 
                 **FORMAT**: 
                 - Use **bold** for important dates/names. 
-                - Use Tables if comparing data.
                 
-                **IMPORTANT ENDING**:
-                At the very end of your response, add a separator "---RECOMMENDATIONS---" followed by exactly 3 related historical topic names separated by commas. Example: "---RECOMMENDATIONS--- Topic A, Topic B, Topic C".
+                **MANDATORY ENDING (STRICT FORMAT)**:
+                1. After the article, add exactly "---FUNFACT---" followed by one surprising/interesting sentence about this topic.
+                
+                2. Then, add exactly "---QUIZJSON---" followed by a JSON Array of **10 multiple choice questions** based on the text above.
+                Format Example: 
+                [
+                    {
+                        "question": "Who was...?",
+                        "options": ["A","B","C","D"],
+                        "answer_index": 0,
+                        "explanation": "Explain briefly why this answer is correct in ${langName}."
+                    },
+                    ...
+                ]
+                (Ensure it is valid JSON. Ensure there are exactly 10 items).
+
+                3. Finally, add exactly "---RECOMMENDATIONS---" followed by 3 related topics separated by commas.
             `;
 
             try {
-                // 1. Call Gemini API
                 const res = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -830,17 +1158,15 @@
                         contents: [{ parts: [{ text: prompt }] }],
                         tools: [{ google_search: {} }]
                     }),
-                    signal: signal // Attach signal
+                    signal: signal
                 });
 
                 const data = await res.json();
                 const candidate = data.candidates?.[0];
                 const text = candidate?.content?.parts?.[0]?.text || "Error: No content generated.";
 
-                // 2. Fetch Main Hero Image
                 const docImgPromise = fetchWikiImage(query, langCode, 600);
                 
-                // 3. Find Figures & Fetch Images
                 const figureMatches = [...text.matchAll(/\[FIGUR:\s*(.*?)\]/g)];
                 const uniqueFigures = [...new Set(figureMatches.map(m => m[1]))];
                 
@@ -850,7 +1176,6 @@
 
                 const [docImg, ...rawFigImgs] = await Promise.all([docImgPromise, ...figImgPromises]);
 
-                // 4. Filter Duplicate Images
                 const distinctFigImgs = [];
                 const seenUrls = new Set();
                 
@@ -863,10 +1188,8 @@
                     }
                 });
 
-                // 5. Render
                 renderMarkdown(text, docImg, distinctFigImgs);
 
-                // 6. Show Sources
                 const sourcesDiv = document.getElementById('sourcesList');
                 sourcesDiv.innerHTML = '';
                 if (candidate?.groundingMetadata?.groundingAttributions) {
